@@ -15,10 +15,11 @@ import {
     Filter8Rounded
 } from '@material-ui/icons';
 
-import { usePickList } from '../hooks/usePickList';
+import { useObservable } from '../hooks/useObservable';
+import { getPickList } from '../services/PickListService';
 
 export default function RoundPicks(props) {
-    const pickList = usePickList();
+    const pickList = useObservable(getPickList(), []);
 
     const icons = [
         <Filter1Rounded />,

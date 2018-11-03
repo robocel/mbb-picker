@@ -8,31 +8,18 @@ import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
 import SwipeableViews from 'react-swipeable-views';
 
-import { withStyles } from '@material-ui/core/styles';
 import { useAuthUser } from '../hooks/useAuthUser';
 import RoundPicks from './RoundPicks';
 import TeamList from './TeamList';
 
-const styles = {
-    root: {
-        flexGrow: 1
-    },
-    grow: {
-        flexGrow: 1
-    },
-    menuButton: {
-        marginLeft: -12,
-        marginRight: 20
-    }
-};
-
 function PickCentral(props) {
     const [user, logout, login] = useAuthUser();
     const [tab, setTab] = useState(0);
+
     const handleTabChange = (_, value) => {
         setTab(value);
     }
-    const { classes } = props;
+
     return (
         <React.Fragment>
             <AppBar position="static">
@@ -40,7 +27,7 @@ function PickCentral(props) {
                     <Typography
                         variant="h6"
                         color="inherit"
-                        className={classes.grow}
+                        className='flex-grow'
                     >
                         Draft Center
                     </Typography>
@@ -68,11 +55,11 @@ function PickCentral(props) {
                 index={tab}
                 onChangeIndex={setTab}
             >
-                <RoundPicks />
-                <TeamList />
+                <RoundPicks className={tab === 0 ? 'hidden' : ''} />
+                <TeamList className={tab === 1 ? 'hidden' : ''} />
             </SwipeableViews>
         </React.Fragment>
     );
 }
 
-export default withStyles(styles)(PickCentral);
+export default PickCentral;
