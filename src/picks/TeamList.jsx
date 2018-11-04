@@ -1,9 +1,13 @@
 import React, { useState } from 'react';
 
+import { withStyles } from '@material-ui/core/styles';
+import Button from '@material-ui/core/Button';
+import Zoom from '@material-ui/core/Zoom';
+
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
-//import ListItemIcon from '@material-ui/core/ListItemIcon';
+import AddIcon from '@material-ui/icons/Add';
 
 import FormControl from '@material-ui/core/FormControl';
 import InputLabel from '@material-ui/core/InputLabel';
@@ -12,12 +16,35 @@ import Select from '@material-ui/core/Select';
 
 import { useObservable } from '../hooks/useObservable';
 import { getTeamList } from '../services/TeamListService';
+import { getPickList } from '../services/PickListService';
+import makePick from '../services/MakePickService';
+import SpecialFabButton from './SpeciaFabButton';
 
 const DEFAULT_RANKING = 'Top 25';
 
-export default function TeamList(props) {
+const styles = theme => ({
+    fab: {
+        position: 'fixed',
+        color: 'white',
+        'background-color': 'green',
+        bottom: theme.spacing.unit * 2,
+        right: theme.spacing.unit * 2
+    }
+});
+
+export default withStyles(styles, { withTheme: true })(function TeamList(
+    props
+) {
     const teamlist = useObservable(getTeamList(), []);
+    const picklist = useObservable(getPickList(), []);
+    const [selectedTeam, setSelectedTeam] = useState();
     const [conference, setConference] = useState(DEFAULT_RANKING);
+
+    const myTurnToPick = picklist.some(
+        (pick, idx) => pick.isLoggedInUser && pick.isCurrentPick && idx < 8
+    );
+
+    const currentPick = picklist.findIndex(pick => pick.isCurrentPick);
 
     return (
         <div className="pt-4 flex flex-col">
@@ -83,7 +110,12 @@ export default function TeamList(props) {
                     })
                     .map(team => (
                         <ListItem
+                            button
                             key={team.name}
+                            selected={
+                                selectedTeam && selectedTeam.name === team.name
+                            }
+                            onClick={() => setSelectedTeam(team)}
                             className={
                                 !team.isAvailable
                                     ? 'bg-red-lightest opacity-50	'
@@ -105,6 +137,30 @@ export default function TeamList(props) {
                         </ListItem>
                     ))}
             </List>
+            <SpecialFabButton pid="fabRoot">
+                <Zoom
+                    in={
+                        myTurnToPick && selectedTeam && selectedTeam.isAvailable
+                    }
+                    timeout={{
+                        enter: props.theme.transitions.duration.enteringScreen,
+                        exit: props.theme.transitions.duration.leavingScreen
+                    }}
+                    unmountOnExit
+                >
+                    <Button
+                        variant="fab"
+                        color="inherit"
+                        className={props.classes.fab}
+                        onClick={() => {
+                            makePick(selectedTeam.name, currentPick);
+                            setSelectedTeam();
+                        }}
+                    >
+                        <AddIcon />
+                    </Button>
+                </Zoom>
+            </SpecialFabButton>
         </div>
     );
-}
+});

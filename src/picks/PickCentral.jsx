@@ -8,12 +8,13 @@ import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
 import SwipeableViews from 'react-swipeable-views';
 
-import { useAuthUser } from '../hooks/useAuthUser';
+import { useObservable } from '../hooks/useObservable';
+import { getUser, logout, login } from '../services/AuthService';
 import RoundPicks from './RoundPicks';
 import TeamList from './TeamList';
 
 function PickCentral(props) {
-    const [user, logout, login] = useAuthUser();
+    const user = useObservable(getUser());
     const [tab, setTab] = useState(0);
 
     const handleTabChange = (_, value) => {
@@ -58,6 +59,7 @@ function PickCentral(props) {
                 <RoundPicks className={tab === 0 ? 'hidden' : ''} />
                 <TeamList className={tab === 1 ? 'hidden' : ''} />
             </SwipeableViews>
+            <div id="fabRoot"/>
         </React.Fragment>
     );
 }

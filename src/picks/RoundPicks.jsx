@@ -34,10 +34,28 @@ export default function RoundPicks(props) {
 
     return (
         <List>
-            {pickList.slice(0,8).map(pick => (
-                <ListItem key={pick.round*10 + pick.pickInRound}>
+            {pickList.slice(0, 8).map(pick => (
+                <ListItem
+                    key={pick.round * 10 + pick.pickInRound}
+                    className={
+                        (pick.isCurrentPick ? 'bg-orange-lightest ' : '') +
+                        (pick.isLoggedInUser ? 'bg-green-lightest' : '')
+                    }
+                >
                     <ListItemIcon>{icons[pick.pickInRound - 1]}</ListItemIcon>
-                    <ListItemText primary={pick.name} secondary={pick.team.name + ' - ' + pick.team.conference.name} />
+                    <ListItemText
+                        primary={
+                            pick.name +
+                            (pick.isCurrentPick ? ' (ON THE CLOCK)' : '')
+                        }
+                        secondary={
+                            pick.team.name
+                                ? pick.team.name +
+                                  ' - ' +
+                                  pick.team.conference.name
+                                : ''
+                        }
+                    />
                 </ListItem>
             ))}
         </List>

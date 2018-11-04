@@ -11,10 +11,6 @@ import { getRankings } from './RankingsService';
 
 let teamlist$;
 
-// let user = {
-//     uid: 'BTqFKjoqV0S3Bm4zj2636z9ItI23'
-// };
-
 function init() {
     teamlist$ = combineLatest(
         getConferences(),
