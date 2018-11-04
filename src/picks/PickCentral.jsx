@@ -7,14 +7,11 @@ import Typography from '@material-ui/core/Typography';
 import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
 import SwipeableViews from 'react-swipeable-views';
-import { virtualize } from 'react-swipeable-views-utils';
 
 import { useObservable } from '../hooks/useObservable';
 import { getUser, logout, login } from '../services/AuthService';
 import RoundPicks from './RoundPicks';
 import TeamList from './TeamList';
-
-const VirtualSwipeableViews = virtualize(SwipeableViews);
 
 function PickCentral() {
     const user = useObservable(getUser());
@@ -68,31 +65,22 @@ function PickCentral() {
                             <Tab label="Team List" />
                         </Tabs>
                     </AppBar>
-                    <VirtualSwipeableViews
+                    <SwipeableViews
                         index={tab}
                         onChangeIndex={setTab}
-                        slideCount={2}
+                        animateHeight
                         style={{
                             display: 'flex',
-                            flexDirection: 'flex-column',
+                            flexDirection: 'column',
                             flexGrow: 1
                         }}
                         containerStyle={{
-                            display: 'flex',
-                            flexDirection: 'flex-column',
                             flexGrow: 1
                         }}
-                        slideStyle={{
-                            flexGrow: 1
-                        }}
-                        slideRenderer={({ index }) =>
-                            index === 0 ? (
-                                <RoundPicks key={1} />
-                            ) : (
-                                <TeamList key={2} />
-                            )
-                        }
-                    />
+                    >
+                        <RoundPicks />
+                        <TeamList />
+                    </SwipeableViews>
                     <div className={tab === 0 ? 'hidden' : ''} id="fabRoot" />{' '}
                 </React.Fragment>
             ) : (
