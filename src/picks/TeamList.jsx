@@ -3,16 +3,18 @@ import React, { useState } from 'react';
 import { withStyles } from '@material-ui/core/styles';
 import Button from '@material-ui/core/Button';
 import Zoom from '@material-ui/core/Zoom';
-
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
-import AddIcon from '@material-ui/icons/Add';
-
+import Collapse from '@material-ui/core/Collapse';
 import FormControl from '@material-ui/core/FormControl';
 import InputLabel from '@material-ui/core/InputLabel';
 import OutlinedInput from '@material-ui/core/OutlinedInput';
 import Select from '@material-ui/core/Select';
+
+import AddIcon from '@material-ui/icons/Add';
+import ExpandLess from '@material-ui/icons/ExpandLess';
+import ExpandMore from '@material-ui/icons/ExpandMore';
 
 import { useObservable } from '../hooks/useObservable';
 import { getTeamList } from '../services/TeamListService';
@@ -109,32 +111,68 @@ export default withStyles(styles, { withTheme: true })(function TeamList(
                         }
                     })
                     .map(team => (
-                        <ListItem
-                            button
-                            key={team.name}
-                            selected={
-                                selectedTeam && selectedTeam.name === team.name
-                            }
-                            onClick={() => setSelectedTeam(team)}
-                            className={
-                                !team.isAvailable
-                                    ? 'opacity-50'
-                                    : ''
-                            }
-                        >
-                            <ListItemText
-                                primary={
-                                    team.name +
-                                    (team.isRanked ? ` (${team.ranking})` : '')
+                        <React.Fragment key={team.name}>
+                            <ListItem
+                                button
+                                selected={
+                                    selectedTeam &&
+                                    selectedTeam.name === team.name
                                 }
-                                secondary={
-                                    team.conference.name +
-                                    (!team.isAvailable
-                                        ? ' | Owner: ' + team.ownedBy
-                                        : '')
+                                onClick={() =>
+                                    selectedTeam === team
+                                        ? setSelectedTeam()
+                                        : setSelectedTeam(team)
                                 }
-                            />
-                        </ListItem>
+                                className={
+                                    !team.isAvailable ? 'opacity-50' : ''
+                                }
+                            >
+                                <ListItemText
+                                    primary={
+                                        team.name +
+                                        (team.isRanked
+                                            ? ` (${team.ranking})`
+                                            : '')
+                                    }
+                                    secondary={
+                                        team.conference.name +
+                                        (!team.isAvailable
+                                            ? ' | Owner: ' + team.ownedBy
+                                            : '')
+                                    }
+                                />
+                                {team.history.length ? (
+                                    selectedTeam === team ? (
+                                        <ExpandLess />
+                                    ) : (
+                                        <ExpandMore />
+                                    )
+                                ) : null}
+                            </ListItem>
+                            {team.history.length ? (
+                                <Collapse
+                                    in={selectedTeam === team}
+                                    timeout="auto"
+                                    unmountOnExit
+                                >
+                                    <List component="div" disablePadding>
+                                        {team.history.map(pick => (
+                                            <ListItem key={pick.year}>
+                                                <ListItemText
+                                                    inset
+                                                    primary={`${pick.year} (${
+                                                        pick.owner
+                                                    })`}
+                                                    secondary={`Round ${
+                                                        pick.round
+                                                    } Pick ${pick.pick}`}
+                                                />
+                                            </ListItem>
+                                        ))}
+                                    </List>
+                                </Collapse>
+                            ) : null}
+                        </React.Fragment>
                     ))}
             </List>
             <SpecialFabButton pid="fabRoot">

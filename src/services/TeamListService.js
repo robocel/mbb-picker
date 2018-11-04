@@ -8,6 +8,7 @@ import { getPicks } from './PickService';
 import { getTeams } from './TeamService';
 import { getUsers } from './UsersService';
 import { getRankings } from './RankingsService';
+import { getHistory } from './HistoryService';
 
 let teamlist$;
 
@@ -20,17 +21,19 @@ function init() {
         getTeams(),
         getUsers(),
         getRankings(),
+        getHistory()
     ).pipe(
-        filter(([conferences, draftorder, pickorder,, teams, users]) => {
+        filter(([conferences, draftorder, pickorder,, teams, users,, history]) => {
             return (
                 pickorder.length &&
                 draftorder.length &&
                 users.length &&
                 teams &&
-                conferences
+                conferences &&
+                history.length
             );
         }),
-        map(([conferences, draftorder, pickorder, picks, teams, users, rankings]) => {
+        map(([conferences, draftorder, pickorder, picks, teams, users, rankings, history]) => {
             return Object.values(teams).map(team => {
                 const allPicks = picks || [];
                 const isAvailable = allPicks.indexOf(team.name) === -1;
@@ -50,7 +53,8 @@ function init() {
                         name: conferences[team.conference].name
                     },
                     isRanked,
-                    ranking
+                    ranking,
+                    history: history.find(t => t.name === team.name).picks || []
                 };
             });
         })
