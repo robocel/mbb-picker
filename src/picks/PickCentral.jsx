@@ -65,22 +65,7 @@ function PickCentral() {
                             <Tab label="Team List" />
                         </Tabs>
                     </AppBar>
-                    <SwipeableViews
-                        index={tab}
-                        onChangeIndex={setTab}
-                        animateHeight
-                        style={{
-                            display: 'flex',
-                            flexDirection: 'column',
-                            flexGrow: 1
-                        }}
-                        containerStyle={{
-                            flexGrow: 1
-                        }}
-                    >
-                        <RoundPicks />
-                        <TeamList />
-                    </SwipeableViews>
+                    { tab === 0 ? <RoundPicks /> : <TeamList /> }
                     <div className={tab === 0 ? 'hidden' : ''} id="fabRoot" />{' '}
                 </React.Fragment>
             ) : (
