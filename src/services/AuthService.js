@@ -4,16 +4,11 @@ import { firebase, firebaseSDK } from '../utils/firebase';
 
 let subject;
 
-let isLoggedIn = false;
-
 function init() {
     subject = new BehaviorSubject();
 
     firebase.auth().onAuthStateChanged(user => {
-        if (!user) {
-            login();
-            isLoggedIn = true;
-        } else {
+        if (user) {
             subject.next(user);
         }
     });
@@ -41,10 +36,7 @@ function login() {
             firebase
                 .auth()
                 .signInWithPopup(provider)
-                .then(function({ user }) {
-                    subject.next(user);
-                    isLoggedIn = true;
-                });
+                .then(() => subject.next);
         });
 }
 
@@ -56,10 +48,7 @@ function logout() {
     firebase
         .auth()
         .signOut()
-        .then(() => {
-            subject.next(null);
-            isLoggedIn = false;
-        });
+        .then(() => subject.next(null));
 }
 
 export { getUser, logout, login };

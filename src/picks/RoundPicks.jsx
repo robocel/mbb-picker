@@ -4,7 +4,9 @@ import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
+import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
 import {
+    Alarm,
     Filter1Rounded,
     Filter2Rounded,
     Filter3Rounded,
@@ -33,7 +35,7 @@ export default function RoundPicks(props) {
     ];
 
     return (
-        <List>
+        <List className="flex-grow">
             {pickList.slice(0, 8).map(pick => (
                 <ListItem
                     key={pick.round * 10 + pick.pickInRound}
@@ -45,8 +47,7 @@ export default function RoundPicks(props) {
                     <ListItemIcon>{icons[pick.pickInRound - 1]}</ListItemIcon>
                     <ListItemText
                         primary={
-                            pick.name +
-                            (pick.isCurrentPick ? ' (ON THE CLOCK)' : '')
+                            pick.name + (pick.isCurrentPick ? ' (PICKING)' : '')
                         }
                         secondary={
                             pick.team.name
@@ -56,6 +57,11 @@ export default function RoundPicks(props) {
                                 : ''
                         }
                     />
+                    {pick.isCurrentPick ? (
+                        <ListItemSecondaryAction>
+                            <Alarm />
+                        </ListItemSecondaryAction>
+                    ) : null}
                 </ListItem>
             ))}
         </List>

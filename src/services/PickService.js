@@ -1,15 +1,30 @@
 import {BehaviorSubject} from 'rxjs';
 import {firebase} from '../utils/firebase';
 import {CURRENT_YEAR} from '../utils/currentYear';
+import { getUser } from './AuthService';
 
 const subjects = {};
 
+let ref, handle;
+
 function init(year) {
     subjects[year] = new BehaviorSubject([]);
-    const ref = firebase.database().ref(`/picks/${year}`);
-    ref.on('value', snapshot => {
-        if (snapshot.val()) {
-            subjects[year].next([...snapshot.val()]);
+
+    getUser().subscribe(user => {
+        if (user) {
+            ref = firebase.database().ref(`/picks/${year}`);
+            handle = ref.on('value', snapshot => {
+                if (snapshot.val()) {
+                    subjects[year].next([...snapshot.val()]);
+                }
+            });
+        } else {
+            if (handle) {
+                ref.off('value', handle);
+            }
+            ref = null;
+            handle = null;
+            subjects[year].next([]);
         }
     });
 }

@@ -118,7 +118,7 @@ export default withStyles(styles, { withTheme: true })(function TeamList(
                             onClick={() => setSelectedTeam(team)}
                             className={
                                 !team.isAvailable
-                                    ? 'bg-red-lightest opacity-50	'
+                                    ? 'opacity-50'
                                     : ''
                             }
                         >

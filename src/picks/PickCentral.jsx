@@ -7,19 +7,22 @@ import Typography from '@material-ui/core/Typography';
 import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
 import SwipeableViews from 'react-swipeable-views';
+import { virtualize } from 'react-swipeable-views-utils';
 
 import { useObservable } from '../hooks/useObservable';
 import { getUser, logout, login } from '../services/AuthService';
 import RoundPicks from './RoundPicks';
 import TeamList from './TeamList';
 
-function PickCentral(props) {
+const VirtualSwipeableViews = virtualize(SwipeableViews);
+
+function PickCentral() {
     const user = useObservable(getUser());
     const [tab, setTab] = useState(0);
 
     const handleTabChange = (_, value) => {
         setTab(value);
-    }
+    };
 
     return (
         <React.Fragment>
@@ -28,38 +31,77 @@ function PickCentral(props) {
                     <Typography
                         variant="h6"
                         color="inherit"
-                        className='flex-grow'
+                        className="flex-grow"
                     >
                         Draft Center
                     </Typography>
                     {user ? (
-                        <Button variant="contained" color="primary" onClick={logout}>Logout</Button>
+                        <Button
+                            variant="contained"
+                            color="primary"
+                            onClick={logout}
+                        >
+                            Logout
+                        </Button>
                     ) : (
-                        <Button variant="contained" color="primary" onClick={login}>Login</Button>
+                        <Button
+                            variant="contained"
+                            color="primary"
+                            onClick={login}
+                        >
+                            Login
+                        </Button>
                     )}
                 </Toolbar>
             </AppBar>
-            <AppBar position="static" color="default">
-                <Tabs
-                    value={tab}
-                    onChange={handleTabChange}
-                    indicatorColor="primary"
-                    textColor="primary"
-                    fullWidth
-                >
-                    <Tab label="Round Picks" />
-                    <Tab label="Team List" />
-                </Tabs>
-            </AppBar>
-            <SwipeableViews
-                axis="x"
-                index={tab}
-                onChangeIndex={setTab}
-            >
-                <RoundPicks className={tab === 0 ? 'hidden' : ''} />
-                <TeamList className={tab === 1 ? 'hidden' : ''} />
-            </SwipeableViews>
-            <div id="fabRoot"/>
+            {user ? (
+                <React.Fragment>
+                    <AppBar position="static" color="default">
+                        <Tabs
+                            value={tab}
+                            onChange={handleTabChange}
+                            indicatorColor="primary"
+                            textColor="primary"
+                            fullWidth
+                        >
+                            <Tab label="Round Picks" />
+                            <Tab label="Team List" />
+                        </Tabs>
+                    </AppBar>
+                    <VirtualSwipeableViews
+                        index={tab}
+                        onChangeIndex={setTab}
+                        slideCount={2}
+                        style={{
+                            display: 'flex',
+                            flexDirection: 'flex-column',
+                            flexGrow: 1
+                        }}
+                        containerStyle={{
+                            display: 'flex',
+                            flexDirection: 'flex-column',
+                            flexGrow: 1
+                        }}
+                        slideStyle={{
+                            flexGrow: 1
+                        }}
+                        slideRenderer={({ index }) =>
+                            index === 0 ? (
+                                <RoundPicks key={1} />
+                            ) : (
+                                <TeamList key={2} />
+                            )
+                        }
+                    />
+                    <div className={tab === 0 ? 'hidden' : ''} id="fabRoot" />{' '}
+                </React.Fragment>
+            ) : (
+                <div className="flex flex-col flex-grow justify-center items-center content-center">
+                    <Button variant="contained" color="primary" onClick={login}>
+                        Login
+                    </Button>
+                </div>
+            )}
         </React.Fragment>
     );
 }
