@@ -11,6 +11,7 @@ import FormControl from '@material-ui/core/FormControl';
 import InputLabel from '@material-ui/core/InputLabel';
 import OutlinedInput from '@material-ui/core/OutlinedInput';
 import Select from '@material-ui/core/Select';
+import Snackbar from '@material-ui/core/Snackbar';
 
 import AddIcon from '@material-ui/icons/Add';
 import ExpandLess from '@material-ui/icons/ExpandLess';
@@ -40,10 +41,11 @@ export default withStyles(styles, { withTheme: true })(function TeamList(
     const teamlist = useObservable(getTeamList(), []);
     const picklist = useObservable(getPickList(), []);
     const [selectedTeam, setSelectedTeam] = useState();
+    const [snackBarOpen, setSnackbarOpen] = useState(false);
     const [conference, setConference] = useState(DEFAULT_RANKING);
 
     const myTurnToPick = picklist.some(
-        (pick, idx) => pick.isLoggedInUser && pick.isCurrentPick && idx < 8
+        (pick, idx) => pick.isLoggedInUser && pick.isCurrentPick && idx < 16
     );
 
     const currentPick = picklist.findIndex(pick => pick.isCurrentPick);
@@ -192,13 +194,19 @@ export default withStyles(styles, { withTheme: true })(function TeamList(
                         className={props.classes.fab}
                         onClick={() => {
                             makePick(selectedTeam.name, currentPick);
-                            setSelectedTeam();
+                            setSnackbarOpen(true);
                         }}
                     >
                         <AddIcon />
                     </Button>
                 </Zoom>
             </SpecialFabButton>
+            <Snackbar
+                open={snackBarOpen}
+                autoHideDuration={4000}
+                onClose={() => setSnackbarOpen(false)}
+                message={<span>Successfully selected {selectedTeam && selectedTeam.name}</span>}
+            />
         </div>
     );
 });

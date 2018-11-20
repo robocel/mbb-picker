@@ -6,7 +6,6 @@ import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
 import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
-import SwipeableViews from 'react-swipeable-views';
 
 import { useObservable } from '../hooks/useObservable';
 import { getUser, logout, login } from '../services/AuthService';
