@@ -12,7 +12,7 @@ function init() {
             ref = firebase.database().ref(`/rankings`);
             handle = ref.on('value', snapshot => {
                 if (snapshot.val()) {
-                    subject.next(snapshot.val());
+                    subject.next([...snapshot.val()]);
                 }
             });
         } else {

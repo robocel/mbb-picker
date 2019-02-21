@@ -20,16 +20,25 @@ import ExpandMore from '@material-ui/icons/ExpandMore';
 import { useObservable } from '../hooks/useObservable';
 import { getTeamList } from '../services/TeamListService';
 import { getPickList } from '../services/PickListService';
+import { getQueue } from '../services/QueueService';
 import makePick from '../services/MakePickService';
+import { addToQueue } from '../services/QueueService';
 import SpecialFabButton from './SpeciaFabButton';
 
-const DEFAULT_RANKING = 'Top 25';
+const DEFAULT_RANKING = 'Best Available (NET)';
 
 const styles = theme => ({
     fab: {
         position: 'fixed',
         color: 'white',
         'background-color': 'green',
+        bottom: theme.spacing.unit * 2,
+        right: theme.spacing.unit * 2
+    },
+    fabq: {
+        position: 'fixed',
+        color: 'white',
+        'background-color': 'red',
         bottom: theme.spacing.unit * 2,
         right: theme.spacing.unit * 2
     }
@@ -40,12 +49,13 @@ export default withStyles(styles, { withTheme: true })(function TeamList(
 ) {
     const teamlist = useObservable(getTeamList(), []);
     const picklist = useObservable(getPickList(), []);
+    const queue = useObservable(getQueue(), []);
     const [selectedTeam, setSelectedTeam] = useState();
     const [snackBarOpen, setSnackbarOpen] = useState(false);
     const [conference, setConference] = useState(DEFAULT_RANKING);
 
     const myTurnToPick = picklist.some(
-        (pick, idx) => pick.isLoggedInUser && pick.isCurrentPick && idx < 16
+        (pick, idx) => pick.isLoggedInUser && pick.isCurrentPick && idx < 104
     );
 
     const currentPick = picklist.findIndex(pick => pick.isCurrentPick);
@@ -86,12 +96,10 @@ export default withStyles(styles, { withTheme: true })(function TeamList(
             </div>
             <List>
                 {teamlist
-                    .filter(
-                        team =>
-                            conference === DEFAULT_RANKING
-                                ? team.isRanked
-                                : !conference ||
-                                  team.conference.name === conference
+                    .filter(team =>
+                        conference === DEFAULT_RANKING
+                            ? team.isRanked
+                            : !conference || team.conference.name === conference
                     )
                     .sort((a, b) => {
                         if (conference === DEFAULT_RANKING) {
@@ -126,7 +134,10 @@ export default withStyles(styles, { withTheme: true })(function TeamList(
                                         : setSelectedTeam(team)
                                 }
                                 className={
-                                    !team.isAvailable ? 'opacity-50' : ''
+                                    !team.isAvailable ||
+                                    queue.includes(team.name)
+                                        ? 'opacity-50'
+                                        : ''
                                 }
                             >
                                 <ListItemText
@@ -134,6 +145,9 @@ export default withStyles(styles, { withTheme: true })(function TeamList(
                                         team.name +
                                         (team.isRanked
                                             ? ` (${team.ranking})`
+                                            : '') +
+                                        (queue.includes(team.name)
+                                            ? ' - IN QUEUE'
                                             : '')
                                     }
                                     secondary={
@@ -180,7 +194,12 @@ export default withStyles(styles, { withTheme: true })(function TeamList(
             <SpecialFabButton pid="fabRoot">
                 <Zoom
                     in={
-                        myTurnToPick && selectedTeam && selectedTeam.isAvailable
+                        (myTurnToPick &&
+                            selectedTeam &&
+                            selectedTeam.isAvailable) ||
+                        (selectedTeam &&
+                            selectedTeam.isAvailable &&
+                            !queue.includes(selectedTeam.name))
                     }
                     timeout={{
                         enter: props.theme.transitions.duration.enteringScreen,
@@ -191,9 +210,17 @@ export default withStyles(styles, { withTheme: true })(function TeamList(
                     <Button
                         variant="fab"
                         color="inherit"
-                        className={props.classes.fab}
+                        className={
+                            myTurnToPick
+                                ? props.classes.fab
+                                : props.classes.fabq
+                        }
                         onClick={() => {
-                            makePick(selectedTeam.name, currentPick);
+                            if (myTurnToPick) {
+                                makePick(selectedTeam.name, currentPick);
+                            } else {
+                                addToQueue(selectedTeam.name);
+                            }
                             setSnackbarOpen(true);
                         }}
                     >
@@ -205,7 +232,12 @@ export default withStyles(styles, { withTheme: true })(function TeamList(
                 open={snackBarOpen}
                 autoHideDuration={4000}
                 onClose={() => setSnackbarOpen(false)}
-                message={<span>Successfully selected {selectedTeam && selectedTeam.name}</span>}
+                message={
+                    <span>
+                        Successfully {myTurnToPick ? 'selected ' : 'queued '}
+                        {selectedTeam && selectedTeam.name}
+                    </span>
+                }
             />
         </div>
     );

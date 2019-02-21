@@ -26,7 +26,7 @@ import { getPickList } from '../services/PickListService';
 
 export default function RoundPicks(props) {
     const pickList = useObservable(getPickList(), []);
-    const [round, setRound] = useState(2);
+    const [round, setRound] = useState(13);
 
     const icons = [
         <Filter1Rounded />,
